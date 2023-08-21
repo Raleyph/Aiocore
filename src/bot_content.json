@@ -1,0 +1,69 @@
+{
+  "messages": [
+    {
+      "start_message": {
+        "ru": "Добро пожаловать!",
+        "ua": "Ласкаво просимо!",
+        "en": "Welcome!"
+      }
+    }
+  ],
+  "reply_keyboards": [
+    {
+      "main_keyboard": [
+        {
+          "info_button": {
+            "emoji": "ℹ️",
+
+            "ru": "Информация жопа пенис говно",
+            "ua": "Інформація",
+            "en": "Info"
+          },
+          "penis_button": {
+            "emoji": "⚠️",
+
+            "ru": "Пенис",
+            "ua": "Інформація",
+            "en": "Info"
+          },
+          "sex_button": {
+            "emoji": "☕️",
+
+            "ru": "Секс",
+            "ua": "Інформація",
+            "en": "Info"
+          },
+          "semen_button": {
+            "emoji": "\uD83D\uDC21",
+
+            "ru": "Сперма катях рулька бобр",
+            "ua": "Інформація",
+            "en": "Info"
+          }
+        }
+      ]
+    }
+  ],
+  "inline_keyboards": [
+    {
+      "confirm_keyboard": [
+        {
+          "confirm_button": {
+            "emoji": "✅",
+
+            "ru": "Да",
+            "ua": "Так",
+            "en": "Yes"
+          },
+          "cancel_button": {
+            "emoji": "❌",
+
+            "ru": "Нет",
+            "ua": "Ні",
+            "en": "No"
+          }
+        }
+      ]
+    }
+  ]
+}
