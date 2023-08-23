@@ -7,3 +7,4 @@ class RegistrationStates(StatesGroup):
 
 class MenuStates(StatesGroup):
     main_page = State()
+    penis = State()

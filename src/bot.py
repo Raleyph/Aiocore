@@ -6,7 +6,9 @@ from src.aiocore import Database
 from src.aiocore import Content
 from src.aiocore import Keyboard
 
-from src.aiocore import UserRepository
+from src.aiocore import UserStorage
+
+from src.aiocore.middlewares.state_storage import StateStorageMiddleware
 
 import asyncio
 
@@ -15,7 +17,7 @@ config = Config()
 database = Database()
 
 # services
-users = UserRepository(database)
+users = UserStorage(database)
 content = Content(users, config)
 keyboard = Keyboard(content)
 
@@ -26,9 +28,14 @@ dp = Dispatcher(storage=MemoryStorage())
 
 async def main():
     from handlers import start_handler, menu_handler
+    from src.aiocore import FSMReset
 
     dp.include_router(start_handler.router)
     dp.include_router(menu_handler.router)
+
+    dp.update.middleware.register(StateStorageMiddleware(users))
+
+    await FSMReset(users).reset_user_states(bot, dp.fsm.storage)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

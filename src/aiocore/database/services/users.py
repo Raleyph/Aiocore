@@ -3,8 +3,15 @@ from typing import Union
 from src.aiocore import Database
 
 
-class UserRepository:
-    __RESERVED_COLUMNS = ["id", "user_id", "language", "state", "state_data"]
+class UserStorage:
+    __RESERVED_COLUMNS = [
+        "id",
+        "user_id",
+        "language",
+        "chat_id",
+        "state",
+        "state_data"
+    ]
 
     def __init__(self, database: Database):
         """
@@ -60,7 +67,8 @@ class UserRepository:
             self,
             user_id: int,
             username: str,
-            language: str
+            language: str,
+            chat_id: int
     ):
         """
         Add new user to database
@@ -68,11 +76,13 @@ class UserRepository:
         :param user_id:
         :param username:
         :param language:
+        :param chat_id:
         :return:
         """
         if not self.check_user_exists(user_id):
-            self.__cursor.execute("INSERT INTO users (user_id, username, installed_language) VALUES (?, ?, ?)",
-                                  (user_id, username, language))
+            self.__cursor.execute("INSERT INTO users (user_id, username, installed_language, chat_id) "
+                                  "VALUES (?, ?, ?, ?)",
+                                  (user_id, username, language, chat_id))
             self.__connection.commit()
 
     def get_user_data(
@@ -104,6 +114,9 @@ class UserRepository:
         :param language:
         :return:
         """
+        if not self.check_user_exists(user_id):
+            raise UserPresenceException(user_id)
+
         if self.get_user_data(user_id)[3] is language:
             raise ValueError("Selected language is already set.")
 
@@ -111,6 +124,9 @@ class UserRepository:
         self.__connection.commit()
 
     def change_user_parameters(self, user_id: int, **parameters):
+        if not self.check_user_exists(user_id):
+            raise UserPresenceException(user_id)
+
         parameters_name = list(parameters.keys())
         parameters_value = list(parameters.values())
 
@@ -125,6 +141,27 @@ class UserRepository:
 
         self.__cursor.execute(f"UPDATE users SET {parameters_execute} WHERE user_id = ?",
                               (*parameters_value, user_id))
+        self.__connection.commit()
+
+    def save_user_state(
+            self,
+            user_id: int,
+            state: str,
+            state_data: dict
+    ):
+        """
+        Save user state and state data
+
+        :param user_id:
+        :param state:
+        :param state_data:
+        :return:
+        """
+        if not self.check_user_exists(user_id):
+            raise UserPresenceException(user_id)
+
+        self.__cursor.execute("UPDATE users SET state = ?, state_data = ? WHERE user_id = ?",
+                              (state, state_data, user_id))
         self.__connection.commit()
 
 

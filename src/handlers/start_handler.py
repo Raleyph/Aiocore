@@ -19,8 +19,6 @@ async def start_bot(message: types.Message, state: FSMContext):
 
     user_id = message.from_user.id
 
-    print(users.get_all_users("user_id"))
-
     if not users.check_user_exists(user_id):
         await state.set_state(RegistrationStates.set_language)
         await message.answer(text=content.get_message_text("start"),
@@ -42,7 +40,7 @@ async def set_user_language(message: types.Message, state: FSMContext):
         return await BaseAnswers.no_option_answer(message, "language_keyboard")
 
     language = keyboard.get_button_name(keyboard_buttons, message.text)
-    users.add_user(user_id, message.from_user.username, language)
+    users.add_user(user_id, message.from_user.username, language, message.chat.id)
 
     await state.set_state(MenuStates.main_page)
     await message.answer(text=content.get_message_text("main", user_id),

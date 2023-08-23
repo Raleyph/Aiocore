@@ -14,7 +14,7 @@
       "main": {
         "ru": "Добро пожаловать! Тестовое сообщение пакета Aiocore\nВерсия 0.1a",
         "ua": "Ласкаво просимо! Тестове повідомлення пакету Aiocore\nВерсія 0.1a",
-        "en": "Welcome! Test message from Aiocore package\n Version 0.1a"
+        "en": "Welcome! Test message from Aiocore package\nVersion 0.1a"
       },
       "info_about_bot": {
         "ru": "Информация про бота...",

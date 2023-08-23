@@ -1,7 +1,6 @@
 from typing import Optional
 
 from aiogram import types
-
 from src.bot import content, keyboard
 
 
