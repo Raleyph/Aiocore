@@ -1,13 +1,16 @@
-from src.aiocore.common.database import Database
-from src.aiocore.common.content import ContentManager
-from src.aiocore.common.configuration import ConfigReader
+from src.aiocore.database.database import Database
+from src.aiocore.common.content import Content
+from src.aiocore.common.configuration import Config
 from .keyboards.keyboard import Keyboard
+
+from src.aiocore.database.services.users import UserRepository
 
 __all__ = [
     "Database",
-    "ContentManager",
-    "ConfigReader",
-    "Keyboard"
+    "Content",
+    "Config",
+    "Keyboard",
+    "UserRepository"
 ]
 
-__version__ = "0.1a"
+__version__ = "0.2a"

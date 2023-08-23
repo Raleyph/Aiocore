@@ -1,18 +1,17 @@
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardMarkup
 
-from src.aiocore.keyboards.markup import MarkupManager
-
-markup = MarkupManager()
+from src.aiocore import Content
+from src.aiocore.keyboards.markup import KeyboardMarkup
 
 
 class Keyboard:
-    def __init__(self):
+    def __init__(self, content: Content):
         """ Initialize keyboard object """
-        pass
+        self.markup = KeyboardMarkup(content)
 
-    @staticmethod
     def get_reply_keyboard(
+            self,
             keyboard_name: str,
             user_id: int,
             row_size: int = 2
@@ -26,15 +25,15 @@ class Keyboard:
         :return:
         """
         kb = ReplyKeyboardBuilder()
-        keyboard_markup = markup.get_reply_keyboard_markup(keyboard_name, user_id, row_size)
+        keyboard_markup = self.markup.get_reply_keyboard_markup(keyboard_name, user_id, row_size)
 
         for row in keyboard_markup:
             kb.row(*row)
 
         return kb.as_markup(resize_keyboard=True)
 
-    @staticmethod
     def get_inline_keyboard(
+            self,
             keyboard_name: str,
             user_id: int,
             row_size: int = 2
@@ -48,9 +47,23 @@ class Keyboard:
         :return:
         """
         kb = InlineKeyboardBuilder()
-        keyboard_buttons = markup.get_inline_keyboard_markup(keyboard_name, user_id, row_size)
+        keyboard_buttons = self.markup.get_inline_keyboard_markup(keyboard_name, user_id, row_size)
 
         for row in keyboard_buttons:
             kb.row(*row)
 
         return kb.as_markup()
+
+    @staticmethod
+    def get_button_name(
+            keyboard: dict,
+            button_text: str
+    ):
+        """
+        Return button name
+
+        :param keyboard:
+        :param button_text:
+        :return:
+        """
+        return dict(zip(keyboard.values(), keyboard.keys())).get(button_text)

@@ -1,15 +1,16 @@
-from src.aiocore import Database
+from typing import Optional
 
 import json
 import sys
 import os
 
+MAX_KEYBOARD_BUTTON_TEXT_LENGTH = 40
 
-class ContentManager:
+
+class Content:
     __TEXT_CONTENT_FILE_PATH = "src/bot_content.json"
-    __MAX_KEYBOARD_BUTTON_TEXT_LENGTH = 40
 
-    def __init__(self):
+    def __init__(self, user_storage, config):
         """ Initialize content manager """
         content_file_path = os.path.join(sys.path[1], self.__TEXT_CONTENT_FILE_PATH)
 
@@ -17,12 +18,13 @@ class ContentManager:
             raise ContentFileError()
 
         self.json_data = json.load(open(content_file_path, encoding="utf-8"))
-        self.database = Database()
+        self.user_storage = user_storage
+        self.config = config
 
     def get_message_text(
             self,
             message: str,
-            user_id: int
+            user_id: Optional[int] = None
     ) -> str:
         """
         Return message text in user's chosen language
@@ -32,7 +34,11 @@ class ContentManager:
         :return:
         """
         messages = self.json_data["messages"]
-        language = self.database.get_user_data(user_id)[3]
+
+        if user_id:
+            language = self.user_storage.get_user_data(user_id)[3]
+        else:
+            language = self.config.get_parameter("Default", "native_language")
 
         for message_block in messages:
             if message in message_block:
@@ -43,49 +49,50 @@ class ContentManager:
 
         raise MessagePresenceError(message)
 
-    def get_keyboard_buttons_text(
+    def get_keyboard_buttons(
             self,
             keyboard_name: str,
-            is_inline_keyboard: bool,
-            user_id: int
-    ) -> list:
+            user_id: Optional[int] = None
+    ) -> dict:
         """
         Return keyboard buttons in user's chosen language
 
         :param keyboard_name:
-        :param is_inline_keyboard:
         :param user_id:
         :return:
         """
-        for keyboard in [
-            *self.json_data["reply_keyboards"],
-            *self.json_data["inline_keyboards"]
-        ]:
+        for keyboard in [*self.json_data["keyboards"]]:
             if keyboard_name in keyboard:
-                keyboard_content = []
-                language = self.database.get_user_data(user_id)[3]
+                keyboard_content = {}
 
-                for button in keyboard[keyboard_name]:
-                    for button_content in button.values():
+                current_keyboard = keyboard[keyboard_name]
 
-                        button_text = button_content[language]
-                        button_emoji = button_content['emoji']
+                keyboard_settings: dict = current_keyboard[0]
+                keyboard_buttons: dict = current_keyboard[1]
 
-                        if language not in button_content:
-                            raise KeyboardLocalizationError(keyboard_name, language)
+                if keyboard_settings["localized"]:
+                    if not user_id:
+                        localize = self.config.get_parameter("Default", "native_language")
+                    else:
+                        localize = self.user_storage.get_user_data(user_id)[3]
+                else:
+                    localize = "text"
 
-                        if len(button_text) > self.__MAX_KEYBOARD_BUTTON_TEXT_LENGTH:
-                            raise KeyboardButtonTextLengthError(button_text)
+                for button_name, button_content in keyboard_buttons.items():
+                    button_text = button_content[localize]
+                    button_emoji = button_content["emoji"]
 
-                        if not is_inline_keyboard:
-                            keyboard_content.append(f"{button_text} {button_emoji}")
-                        else:
-                            keyboard_content.append({f"{list(button.keys())[0]}":
-                                                     f"{button_text} {button_emoji}"})
+                    if len(button_text) > MAX_KEYBOARD_BUTTON_TEXT_LENGTH:
+                        raise KeyboardButtonTextLengthError(button_text)
+
+                    keyboard_content[button_name] = f"{button_text} {button_emoji}"
 
                 return keyboard_content
         else:
             raise KeyboardPresenceError(keyboard_name)
+
+    def get_image(self):
+        pass
 
 
 # Exceptions

@@ -3,7 +3,7 @@ import sys
 import os
 
 
-class ConfigReader:
+class Config:
     __CONFIG_FILE = "src/config.ini"
 
     def __init__(self):
