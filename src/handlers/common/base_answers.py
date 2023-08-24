@@ -1,12 +1,16 @@
 from typing import Optional
 
 from aiogram import types
-from src.bot import content, keyboard
+
+from src.aiocore import Content
+from src.aiocore import Keyboard
 
 
 class BaseAnswers:
     @staticmethod
     async def no_option_answer(
+            content: Content,
+            keyboard: Keyboard,
             message: types.Message,
             answer_keyboard: str,
             user_id: Optional[int] = None

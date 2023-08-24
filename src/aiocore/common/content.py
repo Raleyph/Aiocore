@@ -10,7 +10,7 @@ MAX_KEYBOARD_BUTTON_TEXT_LENGTH = 40
 class Content:
     __TEXT_CONTENT_FILE_PATH = "src/bot_content.json"
 
-    def __init__(self, user_storage, config):
+    def __init__(self, user_repository, config):
         """ Initialize content manager """
         content_file_path = os.path.join(sys.path[1], self.__TEXT_CONTENT_FILE_PATH)
 
@@ -18,7 +18,7 @@ class Content:
             raise ContentFileError()
 
         self.json_data = json.load(open(content_file_path, encoding="utf-8"))
-        self.user_storage = user_storage
+        self.user_repository = user_repository
         self.config = config
 
     def get_message_text(
@@ -36,7 +36,7 @@ class Content:
         messages = self.json_data["messages"]
 
         if user_id:
-            language = self.user_storage.get_user_data(user_id)[3]
+            language = self.user_repository.get_user_data(user_id)[3]
         else:
             language = self.config.get_parameter("Default", "native_language")
 
@@ -74,7 +74,7 @@ class Content:
                     if not user_id:
                         localize = self.config.get_parameter("Default", "native_language")
                     else:
-                        localize = self.user_storage.get_user_data(user_id)[3]
+                        localize = self.user_repository.get_user_data(user_id)[3]
                 else:
                     localize = "text"
 

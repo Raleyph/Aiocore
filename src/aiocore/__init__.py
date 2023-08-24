@@ -3,17 +3,20 @@ from src.aiocore.common.content import Content
 from src.aiocore.common.configuration import Config
 from .keyboards.keyboard import Keyboard
 
-from src.aiocore.fsm.reset import FSMReset
+from src.aiocore.fsm.reset import FSMStorage
 
-from src.aiocore.database.services.users import UserStorage
+from src.aiocore.database.services.users import UserRepository
+
+from .core import CoreServices
 
 __all__ = [
     "Database",
     "Content",
     "Config",
     "Keyboard",
-    "FSMReset",
-    "UserStorage"
+    "FSMStorage",
+    "UserRepository",
+    "CoreServices"
 ]
 
-__version__ = "0.3a"
+__version__ = "0.4a"

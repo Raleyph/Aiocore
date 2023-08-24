@@ -3,7 +3,7 @@ from typing import Union
 from src.aiocore import Database
 
 
-class UserStorage:
+class UserRepository:
     __RESERVED_COLUMNS = [
         "id",
         "user_id",

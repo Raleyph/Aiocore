@@ -29,6 +29,10 @@ class Database(DatabaseInterface):
         self.connection = sqlite3.Connection(database_file_path, check_same_thread=False)
         self.cursor = self.connection.cursor()
 
+    def __del__(self):
+        """ Database destructor """
+        self.connection.close()
+
     def create_table(self, table: str):
         """ Create new table """
         self.connection.execute(table)
