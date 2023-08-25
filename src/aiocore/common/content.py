@@ -1,30 +1,25 @@
-from typing import Optional
+from src.content.messages import messages
+from src.content.keyboards import keyboards
 
-import json
-import sys
-import os
+from src.aiocore import UserRepository
+from src.aiocore import Config
+
+from typing import Optional
 
 MAX_KEYBOARD_BUTTON_TEXT_LENGTH = 40
 
 
 class Content:
-    __TEXT_CONTENT_FILE_PATH = "src/bot_content.json"
-
-    def __init__(self, user_repository, config):
+    def __init__(self, user_repository: UserRepository, config: Config):
         """ Initialize content manager """
-        content_file_path = os.path.join(sys.path[1], self.__TEXT_CONTENT_FILE_PATH)
-
-        if not os.path.exists(content_file_path):
-            raise ContentFileError()
-
-        self.json_data = json.load(open(content_file_path, encoding="utf-8"))
-        self.user_repository = user_repository
-        self.config = config
+        self.__user_repository = user_repository
+        self.__config = config
 
     def get_message_text(
             self,
             message: str,
-            user_id: Optional[int] = None
+            user_id: Optional[int] = None,
+            **data
     ) -> str:
         """
         Return message text in user's chosen language
@@ -33,50 +28,79 @@ class Content:
         :param user_id:
         :return:
         """
-        messages = self.json_data["messages"]
-
         if user_id:
-            language = self.user_repository.get_user_data(user_id)[3]
+            language = self.__user_repository.get_user_data(user_id)[3]
         else:
-            language = self.config.get_parameter("Default", "native_language")
+            language = self.__config.get_parameter("Default", "native_language")
 
         for message_block in messages:
             if message in message_block:
-                if language not in message_block[message]:
+                current_message: dict[str, str] = message_block[message]
+
+                if language not in current_message:
                     raise MessageLocalizationError(message, language)
 
-                return message_block[message][language]
+                if "variables" in current_message:
+                    if not data:
+                        raise MessageVariablesError()
+
+                    message_variables = current_message["variables"]
+
+                    for variable in message_variables:
+                        if variable not in list(data.keys()):
+                            raise MessageVariablesError()
+
+                    final_message = current_message[language].format(**data)
+                else:
+                    final_message = current_message[language]
+
+                emoji = current_message["emoji"] if "emoji" in current_message else ""
+
+                return f"{final_message} {emoji}"
 
         raise MessagePresenceError(message)
 
     def get_keyboard_buttons(
             self,
             keyboard_name: str,
+            page: Optional[int] = None,
             user_id: Optional[int] = None
     ) -> dict:
         """
         Return keyboard buttons in user's chosen language
 
         :param keyboard_name:
+        :param page:
         :param user_id:
         :return:
         """
-        for keyboard in [*self.json_data["keyboards"]]:
+        for keyboard in keyboards:
             if keyboard_name in keyboard:
                 keyboard_content = {}
 
                 current_keyboard = keyboard[keyboard_name]
 
                 keyboard_settings: dict = current_keyboard[0]
-                keyboard_buttons: dict = current_keyboard[1]
+                keyboard_buttons: dict = current_keyboard[1][0]
 
                 if keyboard_settings["localized"]:
                     if not user_id:
-                        localize = self.config.get_parameter("Default", "native_language")
+                        localize = self.__config.get_parameter("Default", "native_language")
                     else:
-                        localize = self.user_repository.get_user_data(user_id)[3]
+                        localize = self.__user_repository.get_user_data(user_id)[3]
                 else:
                     localize = "text"
+
+                if keyboard_settings["paginated"]:
+                    if not page:
+                        raise
+
+                    keyboard_buttons = keyboard_buttons[page]
+
+                if "optional_buttons" in keyboard_settings:
+                    for optional_button in keyboard_settings["optional_buttons"]:
+                        if optional_button not in keyboard_buttons:
+                            raise
 
                 for button_name, button_content in keyboard_buttons.items():
                     button_text = button_content[localize]
@@ -91,20 +115,8 @@ class Content:
         else:
             raise KeyboardPresenceError(keyboard_name)
 
-    def get_image(self):
-        pass
-
 
 # Exceptions
-
-class ContentFileError(Exception):
-    def __init__(self):
-        """ Raise when the JSON content file path does not exist in the main project directory """
-        pass
-
-    def __str__(self):
-        return "The JSON content file does not exists in main project directory."
-
 
 class MessagePresenceError(Exception):
     def __init__(self, message: str):
@@ -136,6 +148,14 @@ class MessageLocalizationError(Exception):
     def __str__(self):
         return f"The requested message construct \"{self.message}\" does not have the " \
                f"requested localization \"{self.language}\" in the JSON content file."
+
+
+class MessageVariablesError(Exception):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return "Penis"
 
 
 class KeyboardPresenceError(Exception):

@@ -24,19 +24,19 @@ async def main():
 
     from src.aiocore.middlewares import CoreMiddleware
 
-    from handlers import start_handler, menu_handler
-
-    # services
-    fsm_reset = FSMStorage(UserRepository(Database()))
+    from handlers import start_handler, menu_handler, admin_handler
 
     # routers
     dp.include_router(start_handler.router)
     dp.include_router(menu_handler.router)
+    dp.include_router(admin_handler.router)
 
     # middlewares
     dp.update.middleware.register(CoreMiddleware())
 
-    await fsm_reset.reset_user_states(bot, dp.fsm.storage)
+    # reset users state
+    fsm_reset = FSMStorage(UserRepository(database=Database()))
+    await fsm_reset.reset_user_states(bot=bot, storage=dp.fsm.storage)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
@@ -55,9 +55,9 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
-    loop.run_until_complete(main())
-
     try:
-        pass
-    except:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
         loop.run_until_complete(close())
+    except Exception as exception:
+        print(exception)

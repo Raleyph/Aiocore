@@ -11,6 +11,15 @@ class CoreServices:
             keyboard: Keyboard,
             fsm_storage: FSMStorage
     ):
+        """
+        The core object that stores database services, content
+        manager, keyboard manager and FSM storage.
+
+        :param user_repository:
+        :param content:
+        :param keyboard:
+        :param fsm_storage:
+        """
         self.user_repository = user_repository
         self.content = content
         self.keyboard = keyboard

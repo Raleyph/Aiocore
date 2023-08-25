@@ -28,7 +28,7 @@ class FSMData:
 
 class FSMStorage:
     def __init__(self, user_repository):
-        self.user_repository = user_repository
+        self.__user_repository = user_repository
 
     def __get_user_states(
             self,
@@ -43,7 +43,7 @@ class FSMStorage:
         :param storage:
         :return:
         """
-        users = self.user_repository.get_all_users(["user_id", "chat_id", "state", "state_data"])
+        users = self.__user_repository.get_all_users(["user_id", "chat_id", "state", "state_data"])
         user_states = []
 
         for user in users:
@@ -99,4 +99,4 @@ class FSMStorage:
         :param state_data:
         :return:
         """
-        self.user_repository.save_user_state(user_id, state, state_data.__str__())
+        self.__user_repository.save_user_state(user_id, state, state_data.__str__())

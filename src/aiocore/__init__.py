@@ -1,15 +1,15 @@
 from src.aiocore.database.database import Database
-from src.aiocore.common.content import Content
+from src.aiocore.database.services.user_repository import UserRepository
+
 from src.aiocore.common.configuration import Config
+from src.aiocore.fsm.reset import FSMStorage
+from src.aiocore.common.content import Content
 from .keyboards.keyboard import Keyboard
 
-from src.aiocore.fsm.reset import FSMStorage
-
-from src.aiocore.database.services.users import UserRepository
-
-from .core import CoreServices
+from src.aiocore.common.core import CoreServices
 
 __all__ = [
+    "__version__",
     "Database",
     "Content",
     "Config",
@@ -19,4 +19,4 @@ __all__ = [
     "CoreServices"
 ]
 
-__version__ = "0.4a"
+__version__ = "0.1b"

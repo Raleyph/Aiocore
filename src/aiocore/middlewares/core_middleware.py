@@ -20,8 +20,11 @@ class CoreMiddleware(BaseMiddleware):
             event: Message,
             data: Dict[str, Any]
     ) -> Any:
-        user_repository = UserRepository(database=Database())
-        content = Content(user_repository=user_repository, config=Config())
+        __database = Database()
+        __config = Config()
+
+        user_repository = UserRepository(database=__database)
+        content = Content(user_repository=user_repository, config=__config)
         keyboard = Keyboard(content=content)
         fsm_storage = FSMStorage(user_repository=user_repository)
 

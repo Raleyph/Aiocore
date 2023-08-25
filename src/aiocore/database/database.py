@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Union
 
+from src.aiocore.database.ecxeptions import DatabaseFileError, ColumnExistsError
+
 import sqlite3
 import sys
 import os
@@ -62,24 +64,3 @@ class Database(DatabaseInterface):
                     return True
 
         raise ColumnExistsError(table, columns)
-
-
-# Exceptions
-
-class DatabaseFileError(Exception):
-    def __init__(self):
-        """ Raise when the database file path does not exist in the main project directory """
-        pass
-
-    def __str__(self):
-        return "The database file does not exists in main project directory."
-
-
-class ColumnExistsError(Exception):
-    def __init__(self, table: str, column: str):
-        """ Raise when the table does not exist current column"""
-        self.table = table
-        self.column = column
-
-    def __str__(self):
-        return f"The table \"{self.table}\" does not exist column \"{self.column}\"."

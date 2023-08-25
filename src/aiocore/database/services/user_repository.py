@@ -1,6 +1,7 @@
 from typing import Union
 
 from src.aiocore import Database
+from src.aiocore.database.ecxeptions import ObjectPresenceException, ReservedParameterError
 
 
 class UserRepository:
@@ -13,6 +14,14 @@ class UserRepository:
         "state_data"
     ]
 
+    __TABLE_NAME = "users"
+    __OBJECT_NAME = "user"
+
+    __USER_STATUSES = {
+        "user": "USER",
+        "admin": "ADMIN"
+    }
+
     def __init__(self, database: Database):
         """
         User storage service
@@ -23,7 +32,7 @@ class UserRepository:
         self.__connection = database.connection
         self.__cursor = database.cursor
 
-        self.__database.create_table(""" CREATE TABLE IF NOT EXISTS users (
+        self.__database.create_table(f""" CREATE TABLE IF NOT EXISTS {self.__TABLE_NAME} (
                                         id                      INTEGER     PRIMARY KEY,
                                         user_id                 INTEGER     NOT NULL,
                                         username                TEXT,
@@ -31,7 +40,8 @@ class UserRepository:
                                         blocked_bot             BOOL        DEFAULT FALSE,
                                         chat_id                 INT,
                                         state                   TEXT,
-                                        state_data              TEXT
+                                        state_data              TEXT,
+                                        status                  TEXT        DEFAULT {self.__USER_STATUSES["user"]}
                                     ) """)
 
     def check_user_exists(
@@ -44,7 +54,8 @@ class UserRepository:
         :param user_id:
         :return:
         """
-        return True if self.__cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()\
+        return True if self.__cursor.execute(f"SELECT * FROM {self.__TABLE_NAME} WHERE user_id = ?",
+                                             (user_id,)).fetchone()\
             else False
 
     def get_all_users(
@@ -52,22 +63,22 @@ class UserRepository:
             column_name: Union[str, list[str]] = None
     ):
         """
+        Return a list of all users or a specific column for all users
 
         :param column_name:
         :return:
         """
         if not column_name:
-            return self.__cursor.execute("SELECT * FROM users").fetchall()
+            return self.__cursor.execute(f"SELECT * FROM {self.__TABLE_NAME}").fetchall()
 
         if self.__database.check_column_exists("users", column_name):
             column_query = ", ".join(column_name) if isinstance(column_name, list) else column_name
-            return self.__cursor.execute(f"SELECT {column_query} FROM users").fetchall()
+            return self.__cursor.execute(f"SELECT {column_query} FROM {self.__TABLE_NAME}").fetchall()
 
     def add_user(
             self,
             user_id: int,
             username: str,
-            language: str,
             chat_id: int
     ):
         """
@@ -75,14 +86,13 @@ class UserRepository:
 
         :param user_id:
         :param username:
-        :param language:
         :param chat_id:
         :return:
         """
         if not self.check_user_exists(user_id):
-            self.__cursor.execute("INSERT INTO users (user_id, username, installed_language, chat_id) "
-                                  "VALUES (?, ?, ?, ?)",
-                                  (user_id, username, language, chat_id))
+            self.__cursor.execute(f"INSERT INTO {self.__TABLE_NAME} (user_id, username, chat_id) "
+                                  f"VALUES (?, ?, ?)",
+                                  (user_id, username, chat_id))
             self.__connection.commit()
 
     def get_user_data(
@@ -95,10 +105,10 @@ class UserRepository:
         :param user_id:
         :return:
         """
-        user_data = self.__cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+        user_data = self.__cursor.execute(f"SELECT * FROM {self.__TABLE_NAME} WHERE user_id = ?", (user_id,)).fetchone()
 
         if not user_data:
-            raise UserPresenceException(user_id)
+            raise ObjectPresenceException(self.__TABLE_NAME, self.__OBJECT_NAME, "user_id", user_id)
 
         return user_data
 
@@ -115,17 +125,18 @@ class UserRepository:
         :return:
         """
         if not self.check_user_exists(user_id):
-            raise UserPresenceException(user_id)
+            raise ObjectPresenceException(self.__TABLE_NAME, self.__OBJECT_NAME, "user_id", user_id)
 
         if self.get_user_data(user_id)[3] is language:
             raise ValueError("Selected language is already set.")
 
-        self.__cursor.execute("UPDATE users installed_language = ? WHERE user_id = ?", (language, user_id))
+        self.__cursor.execute(f"UPDATE {self.__TABLE_NAME} SET installed_language = ? WHERE user_id = ?",
+                              (language, user_id))
         self.__connection.commit()
 
     def change_user_parameters(self, user_id: int, **parameters):
         if not self.check_user_exists(user_id):
-            raise UserPresenceException(user_id)
+            raise ObjectPresenceException(self.__TABLE_NAME, self.__OBJECT_NAME, "user_id", user_id)
 
         parameters_name = list(parameters.keys())
         parameters_value = list(parameters.values())
@@ -139,7 +150,7 @@ class UserRepository:
         else:
             parameters_execute = f"{parameters_name[0]} = ?"
 
-        self.__cursor.execute(f"UPDATE users SET {parameters_execute} WHERE user_id = ?",
+        self.__cursor.execute(f"UPDATE {self.__TABLE_NAME} SET {parameters_execute} WHERE user_id = ?",
                               (*parameters_value, user_id))
         self.__connection.commit()
 
@@ -158,38 +169,8 @@ class UserRepository:
         :return:
         """
         if not self.check_user_exists(user_id):
-            raise UserPresenceException(user_id)
+            raise ObjectPresenceException(self.__TABLE_NAME, self.__OBJECT_NAME, "user_id", user_id)
 
-        self.__cursor.execute("UPDATE users SET state = ?, state_data = ? WHERE user_id = ?",
+        self.__cursor.execute(f"UPDATE {self.__TABLE_NAME} SET state = ?, state_data = ? WHERE user_id = ?",
                               (state, state_data, user_id))
         self.__connection.commit()
-
-
-# Exceptions
-
-class UserPresenceException(Exception):
-    def __init__(self, user_id: int):
-        """
-        Raise when the user is not in the database
-
-        :param user_id:
-        :return:
-        """
-        self.user_id = user_id
-
-    def __str__(self):
-        return f"The required user was not found in the database.\n" \
-               f"User ID: {self.user_id}"
-
-
-class ReservedParameterError(Exception):
-    def __init__(self, parameter: str):
-        """
-        Raise when trying to change a reserved parameter
-
-        :param parameter:
-        """
-        self.parameter = parameter
-
-    def __str__(self):
-        return f"Cannot change reserved parameter {self.parameter} in user storage."
