@@ -12,9 +12,9 @@ class DatabaseServiceTemplate:
     def __init__(self, database: Database):
         """
         To work with the database service in handlers, you need to:
-            0. Add import abbreviation to __init__.py (optional)
-            1. Import service to src.aiocore.common.core and add it to the constructor of the CoreServices class
-            2. Import service to src.aiocore.middlewares.core_middleware and create its object in __call__ method
+            1. Add import abbreviation to src.aiocore.services.database.__init__.py (optional)
+            2. Import service to src.aiocore.core and add it to the constructor of the CoreServices class
+            3. Create a service object in the __call__ method of the CoreMiddleware class and pass it to the CoreServices object
 
         Recommendation: do not create objects inside the service constructor.
         Pass them in the middleware following the principles of dependency injection.

@@ -4,6 +4,8 @@ from aiogram.fsm.storage.base import BaseStorage
 
 from aiogram import Bot
 
+from src.aiocore.services.database import UserRepository
+
 import json
 
 
@@ -27,7 +29,7 @@ class FSMData:
 
 
 class FSMStorage:
-    def __init__(self, user_repository):
+    def __init__(self, user_repository: UserRepository):
         self.__user_repository = user_repository
 
     def __get_user_states(

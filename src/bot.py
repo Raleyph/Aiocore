@@ -18,11 +18,11 @@ async def main():
 
     :return:
     """
-    from src.aiocore import UserRepository
     from src.aiocore import Database
     from src.aiocore import FSMStorage
+    from src.aiocore.services.database import UserRepository
 
-    from src.aiocore.middlewares import CoreMiddleware
+    from src.aiocore.core import CoreMiddleware
 
     from handlers import start_handler, menu_handler, admin_handler
 

@@ -1,7 +1,7 @@
 from src.content.messages import messages
 from src.content.keyboards import keyboards
 
-from src.aiocore import UserRepository
+from src.aiocore.services.database import UserRepository
 from src.aiocore import Config
 
 from typing import Optional

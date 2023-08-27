@@ -68,10 +68,7 @@ keyboards = [
         "main_keyboard": [
             {
                 "localized": True,
-                "paginated": False,
-                "optional_buttons": [
-                    "admin_menu_button"
-                ]
+                "paginated": False
             },
             [
                 {

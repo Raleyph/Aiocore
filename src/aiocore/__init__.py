@@ -1,22 +1,27 @@
 from src.aiocore.database.database import Database
-from src.aiocore.database.services.user_repository import UserRepository
+from src.aiocore.common.config import Config
 
-from src.aiocore.common.configuration import Config
-from src.aiocore.fsm.reset import FSMStorage
+"""
+The UserRepository service is a basic service required for the correct
+operation of the FSMStorage, Content and Keyboard modules.
+"""
+
+from src.aiocore.services.database import UserRepository
+
 from src.aiocore.common.content import Content
-from .keyboards.keyboard import Keyboard
+from src.aiocore.keyboards.keyboard import Keyboard
+from src.aiocore.fsm.reset import FSMStorage
 
-from src.aiocore.common.core import CoreServices
+from src.aiocore.core import CoreServices
 
 __all__ = [
     "__version__",
     "Database",
-    "Content",
     "Config",
+    "Content",
     "Keyboard",
     "FSMStorage",
-    "UserRepository",
     "CoreServices"
 ]
 
-__version__ = "0.1b"
+__version__ = "0.2b"
