@@ -1,8 +1,4 @@
-from typing import Optional
-
 from aiogram.types import KeyboardButton, InlineKeyboardButton
-
-from src.aiocore import Content
 
 MAX_REPLY_ROW_SIZE = 4
 MAX_INLINE_ROW_SIZE = 2
@@ -10,24 +6,18 @@ BUTTON_TEXT_LENGTH_BORDER = 15
 
 
 class KeyboardMarkup:
-    def __init__(self, content: Content):
+    def __init__(self, keyboard_buttons: dict[str, str]):
         """ Initialize markup manager """
-        self.content = content
+        self.keyboard_buttons = keyboard_buttons
 
     def get_reply_keyboard_markup(
             self,
-            keyboard_name: str,
-            user_id: int,
             row_size: int = 2,
-            page: Optional[int] = None
     ) -> list:
         """
         Return sorted reply keyboard markup
 
-        :param keyboard_name:
-        :param user_id:
         :param row_size:
-        :param page:
         :return:
         """
         if row_size > MAX_REPLY_ROW_SIZE or row_size < 0:
@@ -38,9 +28,7 @@ class KeyboardMarkup:
         def add_new_row(new_button_text: str):
             keyboard_markup.append([KeyboardButton(text=new_button_text)])
 
-        buttons = self.content.get_keyboard_buttons(keyboard_name, page, user_id)
-
-        for button_text in buttons.values():
+        for button_text in self.keyboard_buttons.values():
             if (
                 len(button_text) > BUTTON_TEXT_LENGTH_BORDER
                 or not keyboard_markup
@@ -67,18 +55,12 @@ class KeyboardMarkup:
 
     def get_inline_keyboard_markup(
             self,
-            keyboard_name: str,
-            user_id: int,
-            row_size: int = 2,
-            page: Optional[int] = None
+            row_size: int = 2
     ) -> list:
         """
         Return sorted inline keyboard markup
 
-        :param keyboard_name:
-        :param user_id:
         :param row_size:
-        :param page:
         :return:
         """
         if row_size > MAX_INLINE_ROW_SIZE or row_size < 0:
@@ -90,9 +72,7 @@ class KeyboardMarkup:
             keyboard_markup.append([InlineKeyboardButton(text=new_button_text,
                                                          callback_data=new_button_callback_data)])
 
-        buttons = self.content.get_keyboard_buttons(keyboard_name, page, user_id)
-
-        for button_name, button_text in buttons.items():
+        for button_name, button_text in self.keyboard_buttons.items():
             if (
                 len(button_text) > BUTTON_TEXT_LENGTH_BORDER
                 or not keyboard_markup

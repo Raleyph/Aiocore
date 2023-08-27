@@ -9,6 +9,16 @@ import os
 
 
 class DatabaseInterface(ABC):
+    @property
+    @abstractmethod
+    def connection(self):
+        pass
+
+    @property
+    @abstractmethod
+    def cursor(self):
+        pass
+
     @abstractmethod
     def create_table(self, table: str):
         pass
@@ -20,6 +30,9 @@ class DatabaseInterface(ABC):
 
 class Database(DatabaseInterface):
     __DATABASE_FILE_PATH = "src/data/database.db"
+
+    connection = None
+    cursor = None
 
     def __init__(self):
         """ Database initialization """

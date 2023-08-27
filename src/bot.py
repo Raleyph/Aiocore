@@ -24,12 +24,10 @@ async def main():
 
     from src.aiocore.core import CoreMiddleware
 
-    from handlers import start_handler, menu_handler, admin_handler
+    from handlers import start_handler
 
     # routers
     dp.include_router(start_handler.router)
-    dp.include_router(menu_handler.router)
-    dp.include_router(admin_handler.router)
 
     # middlewares
     dp.update.middleware.register(CoreMiddleware())
@@ -55,9 +53,11 @@ if __name__ == "__main__":
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
+    loop.run_until_complete(main())
+
     try:
-        loop.run_until_complete(main())
+        pass
     except KeyboardInterrupt:
         loop.run_until_complete(close())
     except Exception as exception:
-        print(exception)
+        print(exception.__str__())

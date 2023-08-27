@@ -1,4 +1,4 @@
-from src.aiocore import Database
+from src.aiocore.database.database import DatabaseInterface
 
 
 class DatabaseServiceTemplate:
@@ -9,7 +9,7 @@ class DatabaseServiceTemplate:
     __TABLE_NAME = ""
     __OBJECT_NAME = ""
 
-    def __init__(self, database: Database):
+    def __init__(self, database: DatabaseInterface):
         """
         To work with the database service in handlers, you need to:
             1. Add import abbreviation to src.aiocore.services.database.__init__.py (optional)

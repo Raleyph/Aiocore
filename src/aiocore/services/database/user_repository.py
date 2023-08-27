@@ -1,6 +1,6 @@
 from typing import Union
 
-from src.aiocore import Database
+from src.aiocore.database.database import DatabaseInterface
 from src.aiocore.database.ecxeptions import ObjectPresenceException, ReservedParameterError
 
 
@@ -22,7 +22,7 @@ class UserRepository:
         "admin": "ADMIN"
     }
 
-    def __init__(self, database: Database):
+    def __init__(self, database: DatabaseInterface):
         """
         User storage service
 
