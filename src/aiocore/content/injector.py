@@ -1,23 +1,25 @@
 from abc import ABC, abstractmethod
+from string import Formatter
 
 
-class DataInjector(ABC):
+def check_consistency(injector):
+    def wrapper(*args, **kwargs):
+        string = args[1]
+        variables = args[2]
+        message_variables = [fn for _, fn, _, _ in Formatter().parse(string) if fn is not None]
+
+        for variable in variables:
+            if variable not in message_variables:
+                DataConsistencyError(variable)
+
+        return injector(*args, **kwargs)
+    return wrapper()
+
+
+class InjectorBase(ABC):
     @abstractmethod
-    def inject(self, message: str, variables: list[str]):
+    def inject(self, string: str, variables: list[str]) -> str:
         pass
-
-    @staticmethod
-    def check_consistency(inject):
-        def wrapper(*args, **kwargs):
-            string: str = args[1]
-            variables: list[str] = args[2]
-
-            for variable in variables:
-                if string.find(variable) == -1:
-                    raise DataConsistencyError(variable)
-
-            return inject(*args, **kwargs)
-        return wrapper
 
 
 # Exceptions
@@ -37,10 +39,18 @@ class InjectorPresenceError(Exception):
                f"into the \"{self.string}\" are specified."
 
 
+class InjectError(Exception):
+    def __init__(self):
+        """ Raised when injector is empty """
+
+    def __str__(self):
+        return "Injector is empty."
+
+
 class DataConsistencyError(Exception):
     def __init__(self, variable: str):
         """
-        Raised when the variables specified in content properties are not present in the string
+        Raised when the variables specified in injectors properties are not present in the string
 
         :param variable:
         """

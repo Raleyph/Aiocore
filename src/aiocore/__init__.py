@@ -1,5 +1,6 @@
 from src.aiocore.database.database import Database
 from src.aiocore.common.config import Config
+from src.aiocore.common.logger import Logger
 
 """
 The UserRepository service is a basic service required for the correct
@@ -18,6 +19,7 @@ __all__ = [
     "__version__",
     "Database",
     "Config",
+    "Logger",
     "Content",
     "Keyboard",
     "FSMStorage",

@@ -7,8 +7,3 @@ class RegistrationStates(StatesGroup):
 
 class MenuStates(StatesGroup):
     main_page = State()
-
-
-class AdminStates(StatesGroup):
-    first_page = State()
-    second_page = State()

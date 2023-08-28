@@ -6,6 +6,7 @@ from typing import Callable, Awaitable, Dict, Any
 
 from src.aiocore import Database
 from src.aiocore import Config
+from src.aiocore import Logger
 from src.aiocore import Content
 from src.aiocore import Keyboard
 from src.aiocore import FSMStorage
@@ -20,10 +21,11 @@ class CoreServices:
             user_repository: UserRepository,
             content: Content,
             keyboard: Keyboard,
-            fsm_storage: FSMStorage
+            fsm_storage: FSMStorage,
+            logger: Logger
     ):
         """
-        The core object that stores database services, content
+        The core object that stores database services, injectors
         manager, keyboard manager and FSM storage.
 
         :param user_repository:
@@ -35,6 +37,7 @@ class CoreServices:
         self.content = content
         self.keyboard = keyboard
         self.fsm_storage = fsm_storage
+        self.logger = logger
 
 
 class CoreMiddleware(BaseMiddleware):
@@ -52,6 +55,7 @@ class CoreMiddleware(BaseMiddleware):
         # Base objects
         database = Database()
         config = Config()
+        logger = Logger()
 
         # Core services
         user_repository = UserRepository(database=database)
@@ -63,7 +67,8 @@ class CoreMiddleware(BaseMiddleware):
             user_repository=user_repository,
             content=content,
             keyboard=keyboard,
-            fsm_storage=fsm_storage
+            fsm_storage=fsm_storage,
+            logger=logger
         )
 
         await handler(event, data)

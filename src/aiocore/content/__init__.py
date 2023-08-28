@@ -1,5 +1,5 @@
-from src.aiocore.content.injector import DataInjector
+from src.aiocore.content.injector import InjectorBase
 
 __all__ = [
-    "DataInjector"
+    "InjectorBase"
 ]

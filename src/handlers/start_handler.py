@@ -10,7 +10,7 @@ from src.aiocore.fsm.states import *
 from src.content.messages import *
 from src.content.keyboards import *
 
-from src.handlers.common import BaseAnswers
+from src.handlers.repeated_answers import RepeatedAnswers
 
 router = Router()
 
@@ -33,19 +33,18 @@ async def start_bot(message: types.Message, state: FSMContext, core: CoreService
         core.user_repository.add_user(user_id, message.from_user.username, message.chat.id)
     else:
         await state.set_state(MenuStates.main_page)
-        await BaseAnswers.main_menu_answer(core.content, core.keyboard, message)
+        await RepeatedAnswers.main_menu_answer(core, message)
 
 
 @router.message(RegistrationStates.set_language, F.text)
 async def set_user_language(message: types.Message, state: FSMContext, core: CoreServices):
     user_id = message.from_user.id
-    keyboard_buttons = core.keyboard.get_keyboard_buttons(set_language_keyboard, user_id)
+    language = core.keyboard.button_callback(message.text, set_language_keyboard)
 
-    if message.text not in keyboard_buttons.values():
-        return await BaseAnswers.no_option_answer(core.content, core.keyboard, message, set_language_keyboard)
+    if not language:
+        return await RepeatedAnswers.no_option_answer(core, message, set_language_keyboard)
 
-    language = core.keyboard.get_button_name(keyboard_buttons, message.text)
     core.user_repository.change_user_language(user_id, language)
 
     await state.set_state(MenuStates.main_page)
-    await BaseAnswers.main_menu_answer(core.content, core.keyboard, message)
+    await RepeatedAnswers.main_menu_answer(core, message)

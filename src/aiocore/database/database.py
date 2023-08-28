@@ -29,19 +29,25 @@ class DatabaseInterface(ABC):
 
 
 class Database(DatabaseInterface):
-    __DATABASE_FILE_PATH = "src/data/database.db"
+    __DATABASE_DIRECTORY = "src/data/"
+    __DATABASE_FILE_NAME = "database.db"
 
     connection = None
     cursor = None
 
     def __init__(self):
         """ Database initialization """
-        database_file_path = os.path.join(sys.path[1], self.__DATABASE_FILE_PATH)
+        database_directory = os.path.join(sys.path[1], self.__DATABASE_DIRECTORY)
 
-        if not os.path.exists(database_file_path):
+        if not os.path.exists(database_directory):
             raise DatabaseFileError()
 
-        self.connection = sqlite3.Connection(database_file_path, check_same_thread=False)
+        database_path = os.path.join(database_directory, self.__DATABASE_FILE_NAME)
+
+        self.connection = sqlite3.Connection(
+            database_path,
+            check_same_thread=False
+        )
         self.cursor = self.connection.cursor()
 
     def __del__(self):

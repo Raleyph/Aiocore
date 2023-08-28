@@ -22,8 +22,8 @@ class DatabaseServiceTemplate:
         :param database:
         """
         self.__database = database
-        self.__connection = self.__database.connection
-        self.__cursor = self.__database.cursor
+        self.__connection = self.__database.__connection
+        self.__cursor = self.__database.__cursor
 
         self.__database.create_table(f""" CREATE TABLE IF NOT EXISTS {self.__TABLE_NAME} (
                                             id              INTEGER     PRIMARY KEY
